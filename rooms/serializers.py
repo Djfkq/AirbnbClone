@@ -23,11 +23,19 @@ class RoomListSerializer(ModelSerializer):
             "city",
             "price",
             "rating",
+            "is_owner",
         )
 
     rating = SerializerMethodField()
+    is_owner = SerializerMethodField()
+
     def get_rating(self, room):
-      return room.rating()
+        return room.rating()
+
+    def get_is_owner(self, room):
+        request = self.context["request"]
+        return room.owner == request.user
+
 
 class RoomDetailSerializer(ModelSerializer):
     owner = TinyUserSerializer(
@@ -39,6 +47,7 @@ class RoomDetailSerializer(ModelSerializer):
     category = CategorySerializer(read_only=True)
 
     rating = SerializerMethodField()
+    is_owner = SerializerMethodField()
 
     class Meta:
         model = Room
@@ -52,8 +61,14 @@ class RoomDetailSerializer(ModelSerializer):
 
     #####################
 
-    def get_rating(self, room):  # 메서드 이름은 : get_속성이름으로 해야함, 두번째 인자는 해당하는 object
-      return room.rating()
+    # 메서드 이름은 : get_속성이름으로 해야함, 두번째 인자는 해당하는 object
+    def get_rating(self, room):
+        return room.rating()
+
+    def get_is_owner(self, room):
+        # views에서 serializer부분에 context={} 보냈을 때 self.context로 접근 가능
+        request = self.context["request"]
+        return room.owner == request.user
 
 
 # class RoomSerializer(ModelSerializer):
