@@ -1,0 +1,52 @@
+python manage.py shell 명령어로 shell에 들어가야함
+
+0. clear console
+ - print("\033c", end='')
+
+1.filter
+- Room.objects.filter(price__gt=15)  => price > 15 찾음
+- Room.objects.filter(price__gte=15)  => price >= 15 찾음
+- Room.objects.filter(price__lt=15)  => price < 15 찾음
+- Room.objects.filter(price__lte=15)  => price <= 15 찾음
+- Room.objects.filter(name__contains="서울")  => name에 "서울" 포함된거 찾음
+- Room.objects.filter(name__startswith="서울")  => name이 "서울"로 시작된거 찾음
+- Room.objects.filter(name__endswith="서울")  => name이 "서울"로 끝나는거 찾음
+
+2. create
+ (1) 첫번째 방법
+  - Amenity.objects.create(name="Amenity from the console", description="cool")
+ (2) 두번째 방법
+  - a = Amenity(name="Amenity from the console", description="cool")
+  - a.save()
+3. delete
+ - a =Amenity.objects.get(id=8)
+ - a.delete()
+ <참고> Amenity.objects.delete(id=8) 은 안됨!
+4. exclude(제외하는거), filter한다음에 또 filter나 exclude 등 추가로 할 수 있음
+ -Room.objects.filter(pet_friendly=True).exclude(price__lt=21)
+ 
+ -Room.objects.filter(pet_friendly=True).filter(name__contains="서울")
+ -Room.objects.filter(pet_friendly=True, name__contains="서울", price__gt=15)  => 한번에 가능
+
+ -Room.objects.filter(pet_friendly=True).count()
+
+5. 여러가지 lookup들(__뒤에 붙는 함수들)  (field lookup reference에서 찾아보면 됨)
+ - Room.objects.get(name__exact="이쁜집")   => exact : 완전 동일
+ - Room.objects.filter(name__iexact="APT") => iexact : 대소문자 다른건 상관X, (apt, APT, aPt 등 모두 해당)
+ - __contains vs __icontains : 대소문자 구별 여부 차이
+ - __startswith, __endswith, __istartswith, __iendswith
+ - Room.objects.filter(id__in=[1, 3, 4]) 
+ - Room.objects.filter(id__range=(1, 3))  =>__range : between A and B와 동일
+ - Room.objects.filter(created_at__year=2023) => __year, __month, 
+ - Room.objects.filter(created_at__year__gte=2023) => __year__gte
+
+6. exists
+ - Room.objects.filter(price__lt=15).exists()
+
+7. ForeignKey Filter
+ - Room.objects.filter(owner__username="admin")   => ForeignKey인 owner뒤에 __붙이면 owner의 속성 접근 가능
+ - Room.objects.filter(owner__username__startswith="ad")
+
+8. Reverse Accessors
+ - me = User.objects.get(id=1)
+   me.room_set.all()    => _set붙이면 reverse 값들 알수 있음 (dir(me)에서 다른거 확인 가능)
