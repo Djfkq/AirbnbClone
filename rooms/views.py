@@ -172,54 +172,7 @@ class RoomDetail(APIView):
         room = self.get_object(pk)
         serializer = RoomDetailSerializer(room)
         return Response(serializer.data)
-
-    def put(self, request, pk):
-        room = self.get_object(pk)
-        if not request.user.is_authenticated:
-            raise NotAuthenticated
-        if room.owner != request.user:
-            raise PermissionDenied
-
-        serializer = RoomDetailSerializer(
-            room,
-            data=request.data,
-            partial=True,
-        )
-        if serializer.is_valid():
-            with transaction.atomic():
-                category_pk = request.data.get('category')
-                amenities_pk = request.data.get('amenities')
-
-                if category_pk:
-                    try:
-                        category = Category.objects.get(pk=category_pk)
-                    except Exception:
-                        raise ParseError("Category not found")
-                    if category.kind == Category.CategoryKindChoices.EXPERIENCES:
-                        raise ParseError("The Category kind sholud be 'rooms'")
-                else:
-                    category = room.category
-
-                if amenities_pk:
-                    amenities = []
-                    for amenity_pk in amenities_pk:
-                        try:
-                            amenity = Amenity.objects.get(pk=amenity_pk)
-                            amenities.append(amenity)
-                        except Exception:
-                            raise ParseError("Amenitiy not found")
-                else:
-                    amenities = room.amenities.all()
-
-                updated_room = serializer.save(
-                    owner=request.user,
-                    category=category,
-                    amenities=amenities,
-                )
-                return Response(RoomDetailSerializer(updated_room).data)
-        else:
-            return Response(serializer.errors)
-
+   
     def delete(self, request, pk):
         room = self.get_object(pk)
         if not request.user.is_authenticated:
