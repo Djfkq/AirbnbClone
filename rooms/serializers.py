@@ -49,10 +49,12 @@ class RoomDetailSerializer(ModelSerializer):
 
     rating = SerializerMethodField()
     is_owner = SerializerMethodField()
-    reviews = ReviewSerializer(
-        many=True,
-        read_only=True,
-    )
+
+    # review들을 한꺼번에 보여주기보단, 새로운 URL만듬
+    # reviews = ReviewSerializer(
+    #     many=True,
+    #     read_only=True,
+    # )
 
     class Meta:
         model = Room
