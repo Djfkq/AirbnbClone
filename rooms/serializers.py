@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import Amenity, Room
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
@@ -22,8 +22,12 @@ class RoomListSerializer(ModelSerializer):
             "country",
             "city",
             "price",
+            "rating",
         )
 
+    rating = SerializerMethodField()
+    def get_rating(self, room):
+      return room.rating()
 
 class RoomDetailSerializer(ModelSerializer):
     owner = TinyUserSerializer(
@@ -33,6 +37,8 @@ class RoomDetailSerializer(ModelSerializer):
         read_only=True,
     )
     category = CategorySerializer(read_only=True)
+
+    rating = SerializerMethodField()
 
     class Meta:
         model = Room
@@ -45,6 +51,9 @@ class RoomDetailSerializer(ModelSerializer):
     #     return
 
     #####################
+
+    def get_rating(self, room):  # 메서드 이름은 : get_속성이름으로 해야함, 두번째 인자는 해당하는 object
+      return room.rating()
 
 
 # class RoomSerializer(ModelSerializer):
