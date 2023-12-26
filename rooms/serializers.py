@@ -3,6 +3,7 @@ from .models import Amenity, Room
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
 from reviews.serializers import ReviewSerializer
+from medias.serializers import PhotoSerializer
 
 
 class AmenitySerializer(ModelSerializer):
@@ -25,10 +26,12 @@ class RoomListSerializer(ModelSerializer):
             "price",
             "rating",
             "is_owner",
+            "photos",
         )
 
     rating = SerializerMethodField()
     is_owner = SerializerMethodField()
+    photos = PhotoSerializer(many=True, read_only=True)
 
     def get_rating(self, room):
         return room.rating()
@@ -49,6 +52,7 @@ class RoomDetailSerializer(ModelSerializer):
 
     rating = SerializerMethodField()
     is_owner = SerializerMethodField()
+    photos = PhotoSerializer(many=True, read_only=True)
 
     # review들을 한꺼번에 보여주기보단, 새로운 URL만듬
     # reviews = ReviewSerializer(
