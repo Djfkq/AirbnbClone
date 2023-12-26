@@ -4,6 +4,7 @@ from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
 from reviews.serializers import ReviewSerializer
 from medias.serializers import PhotoSerializer
+from wishlists.models import Wishlist
 
 
 class AmenitySerializer(ModelSerializer):
@@ -55,6 +56,7 @@ class RoomDetailSerializer(ModelSerializer):
 
     rating = SerializerMethodField()
     is_owner = SerializerMethodField()
+    is_liked = SerializerMethodField()
     photos = PhotoSerializer(many=True, read_only=True)
 
     # review들을 한꺼번에 보여주기보단, 새로운 URL만듬
@@ -83,6 +85,13 @@ class RoomDetailSerializer(ModelSerializer):
         # views에서 serializer부분에 context={} 보냈을 때 self.context로 접근 가능
         request = self.context["request"]
         return room.owner == request.user
+
+    def get_is_liked(self, room):
+        request = self.context["request"]
+        return Wishlist.objects.filter(user=request.user, rooms__pk=room.pk).exists()
+        
+      
+    
 
 
 # class RoomSerializer(ModelSerializer):
