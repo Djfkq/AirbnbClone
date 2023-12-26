@@ -54,6 +54,7 @@ from rest_framework.status import HTTP_204_NO_CONTENT
 from django.db import transaction
 from reviews.serializers import ReviewSerializer
 from django.conf import settings
+from medias.serializers import PhotoSerializer
 
 
 class Amenities(APIView):
@@ -294,5 +295,22 @@ class RoomAmenities(APIView):
 
 
 class RoomPhotos(APIView):
+  def get_object(self, pk):
+    try:
+      return Room.objects.get(pk=pk)
+    except Room.DoesNotExist:
+      raise NotFound
+      
   def post(self, request, pk):
-    pass
+    room = self.get_object(pk)
+    if not request.user.is_authenticated:
+      raise NotAuthenticated
+    if request.user != room.owner:
+      raise PermissionDenied
+    serializer = PhotoSerializer(data=request.data)
+    if serializer.is_valid():
+      photo = serializer.save(room=room)
+      serializer = PhotoSerializer(photo)
+      return Response(serializer.data)
+    else:
+      return Response(serializer.errors)
