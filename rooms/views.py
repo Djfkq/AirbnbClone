@@ -57,7 +57,7 @@ from django.conf import settings
 from medias.serializers import PhotoSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from bookings.models import Booking
-from bookings.serializers import PublicBookingSerializer, PrivateBookingSerializer
+from bookings.serializers import PublicBookingSerializer, CreateRoomBookingSerializer
 from django.utils import timezone
 
 
@@ -363,11 +363,9 @@ class RoomBookings(APIView):
         month = request.query_params.get("month", "").replace("/", "")
         now = timezone.localtime(timezone.now()).date()
 
-        bookings = Booking.objects.filter(
-            room=room,
-            kind=Booking.BookingKindChoices.ROOM,
-            check_in__gt=now
-        )
+        bookings = Booking.objects.filter(room=room,
+                                          kind=Booking.BookingKindChoices.ROOM,
+                                          check_in__gt=now)
         # bookings = Booking.objects.filter(room__pk=pk)  #pk로 한번에 확인가능
         if month != "":
             bookings = bookings.filter(check_in__month=month)
@@ -380,9 +378,8 @@ class RoomBookings(APIView):
 
     def post(self, request, pk):
         room = self.get_object(pk)
-        serializer = PrivateBookingSerializer(room, data=request.data)
+        serializer = CreateRoomBookingSerializer(data=request.data)
         if serializer.is_valid():
-            print("valid!")
-            pass
+            return Response({"status":"ok"})
         else:
             return Response(serializer.errors)
